@@ -18,28 +18,32 @@ var color_index = 0
 var color_distance = 0
 var color_completed = true
 
+var colors = [
+	Color8(224,49,49)
+	,Color8(255,146,43)
+	,Color8(255,212,59)
+	,Color8(148,216,45)
+	,Color8(34,139,230)
+	,Color8(132,94,247)
+	,Color8(190,75,219)
+	,Color8(134,142,150)
+]
+
 func _ready():
 	randomize()
 	position.x = new_position.x
 	position.y = -100
 	$Tween.interpolate_property(self, "position", position, new_position, time_appear + randf()*2, Tween.TRANS_BOUNCE, Tween.EASE_IN_OUT)
 	$Tween.start()
-	if score >= 100:
-		$ColorRect.color = Color8(224,49,49)
-	elif score >= 90:
-		$ColorRect.color = Color8(255,146,43)
-	elif score >= 80:
-		$ColorRect.color = Color8(255,212,59)
-	elif score >= 70:
-		$ColorRect.color = Color8(148,216,45)
-	elif score >= 60:
-		$ColorRect.color = Color8(34,139,230)
-	elif score >= 50:
-		$ColorRect.color = Color8(132,94,247)
-	elif score >= 40:
-		$ColorRect.color = Color8(190,75,219)
-	else:
-		$ColorRect.color = Color8(134,142,150)
+	if score >= 100: color_index = 0
+	elif score >= 90: color_index = 1
+	elif score >= 80: color_index = 2
+	elif score >= 70: color_index = 3
+	elif score >= 60: color_index = 4
+	elif score >= 50: color_index = 5
+	elif score >= 40: color_index = 6
+	else: color_index = 7
+	$ColorRect.color = colors[color_index]
 
 func _physics_process(_delta):
 	if dying and not $Confetti.emitting and not $Tween.is_active():
@@ -63,3 +67,6 @@ func die():
 	$Tween.interpolate_property($ColorRect, "color:s", $ColorRect.color.s, 0, time_s, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
 	$Tween.interpolate_property($ColorRect, "color:v", $ColorRect.color.v, 0, time_v, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
 	$Tween.start()
+	var brick_sound = get_node_or_null("/root/Game/Brick_Sound")
+	if brick_sound != null:
+		brick_sound.play()
