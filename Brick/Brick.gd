@@ -44,14 +44,30 @@ func _ready():
 	elif score >= 40: color_index = 6
 	else: color_index = 7
 	$ColorRect.color = colors[color_index]
+	sway_initial_position = $ColorRect.rect_position
+	sway_randomizer = Vector2(randf() * 6 - 3.0, randf() * 6 - 3)
 
 func _physics_process(_delta):
 	if dying and not $Confetti.emitting and not $Tween.is_active():
 		queue_free()
 	elif not $Tween.is_active() and not get_tree().paused:
-		pass
+		color_distance = Global.color_position.distance_to(global_position) /100
+		if Global.color_rotate >= 0:
+			$ColorRect.color = colors[int(floor(color_distance + Global.color_rotate)) % len(colors)]
+			color_completed = false
+		elif not color_completed:
+			$ColorRect.color = colors[color_index]
+			color_completed = true
+	var pos_x = (sin(Global.sway_index) * (sway_amplitude + sway_randomizer.x))
+	var pos_y = (cos(Global.sway_index) * (sway_amplitude + sway_randomizer.y))
+	$ColorRect.rect_position = Vector2(sway_initial_position.x + pos_x, sway_initial_position.y + pos_y)
 
-func hit(_ball):
+func hit(ball):
+	var brick_sound = get_node_or_null("/root/Game/Brick_Sound")
+	if brick_sound != null:
+		brick_sound.play()
+	Global.color_rotate = Global.color_rotate_amount
+	Global.color_position = ball.global_position
 	die()
 
 func die():
@@ -67,6 +83,3 @@ func die():
 	$Tween.interpolate_property($ColorRect, "color:s", $ColorRect.color.s, 0, time_s, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
 	$Tween.interpolate_property($ColorRect, "color:v", $ColorRect.color.v, 0, time_v, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
 	$Tween.start()
-	var brick_sound = get_node_or_null("/root/Game/Brick_Sound")
-	if brick_sound != null:
-		brick_sound.play()
